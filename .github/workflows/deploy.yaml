@@ -1,0 +1,45 @@
+name: deploy-to-argo-via-actions
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: dev or prod
+        required: true
+        default: dev
+
+jobs:
+  update-manifest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Select values file
+        run: |
+            if [ "${{ inputs.environment }}" = "dev" ]; then
+            echo "REPLICA_COUNT=1" >> $GITHUB_ENV
+            echo "ENV_NAME=dev" >> $GITHUB_ENV
+            else
+            echo "REPLICA_COUNT=3" >> $GITHUB_ENV
+            echo "ENV_NAME=prod" >> $GITHUB_ENV
+            fi
+
+      - name: Update deployment.yaml
+        run: |
+          yq -i '.spec.replicas = env(REPLICA_COUNT)' deployment.yaml
+          yq -i '.spec.template.metadata.labels.env = env(ENV_NAME)' deployment.yaml
+
+      - name: Update service.yaml if needed
+        run: |
+          yq -i '.metadata.labels.env = env(ENV_NAME)' service.yaml
+          yq -i '.spec.selector.env = env(ENV_NAME)' service.yaml
+
+
+      - name: Commit and push
+        run: |
+          git config user.name github-actions
+          git config user.email ccwh@ust.hk
+          git add deployment.yaml service.yaml
+          git commit -m "update ${{ inputs.environment }} values"
+          git push
