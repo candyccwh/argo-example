@@ -18,29 +18,29 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
         
-      - name: Update files
-        run: |
-          echo "do updates here"
+      # - name: Update files
+      #   run: |
+      #     echo "do updates here"
           
-      # - name: Select values file
-      #   run: |
-      #       if [ "${{ inputs.environment }}" = "dev" ]; then
-      #       echo "REPLICA_COUNT=1" >> $GITHUB_ENV
-      #       echo "ENV_NAME=dev" >> $GITHUB_ENV
-      #       else
-      #       echo "REPLICA_COUNT=3" >> $GITHUB_ENV
-      #       echo "ENV_NAME=prod" >> $GITHUB_ENV
-      #       fi
+      - name: Select values file
+        run: |
+            if [ "${{ inputs.environment }}" = "dev" ]; then
+            echo "REPLICA_COUNT=1" >> $GITHUB_ENV
+            echo "ENV_NAME=dev" >> $GITHUB_ENV
+            else
+            echo "REPLICA_COUNT=3" >> $GITHUB_ENV
+            echo "ENV_NAME=prod" >> $GITHUB_ENV
+            fi
 
-      # - name: Update deployment.yaml
-      #   run: |
-      #     yq -i '.spec.replicas = env(REPLICA_COUNT)' guestbook/guestbook-ui-deployment.yaml
-      #     yq -i '.spec.template.metadata.labels.env = env(ENV_NAME)' guestbook/guestbook-ui-deployment.yaml
+      - name: Update deployment.yaml
+        run: |
+          yq -i '.spec.replicas = env(REPLICA_COUNT)' guestbook/guestbook-ui-deployment.yaml
+          yq -i '.spec.template.metadata.labels.env = env(ENV_NAME)' guestbook/guestbook-ui-deployment.yaml
 
-      # - name: Update service.yaml if needed
-      #   run: |
-      #     yq -i '.metadata.labels.env = env(ENV_NAME)' guestbook/guestbook-ui-svc.yaml
-      #     yq -i '.spec.selector.env = env(ENV_NAME)' guestbook/guestbook-ui-svc.yaml
+      - name: Update service.yaml if needed
+        run: |
+          yq -i '.metadata.labels.env = env(ENV_NAME)' guestbook/guestbook-ui-svc.yaml
+          yq -i '.spec.selector.env = env(ENV_NAME)' guestbook/guestbook-ui-svc.yaml
 
 
       - name: Commit and push
