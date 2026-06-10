@@ -50,7 +50,30 @@ jobs:
           git add guestbook/guestbook-ui-deployment.yaml guestbook/guestbook-ui-svc.yaml
           git commit --allow-empty -m "update ${{ inputs.environment }} values"
           git push
-          
+
+  sync-dev:
+    runs-on: ubuntu-latest
+    needs: update-manifest
+    if: ${{ inputs.environment == 'dev' }}
+    environment: dev
+    steps:
+      - name: Install ArgoCD
+        uses: syntaqx/setup-argocd@v1
+                
+      - name: Sync ArgoCD app
+        env:
+          ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_TOKEN }}
+          ARGOCD_SERVER: argocd-akslocal5.hkust.edu.hk
+        run: |
+           argocd app sync test-sep-argo-project \
+             --server "$ARGOCD_SERVER" \
+             --auth-token "$ARGOCD_AUTH_TOKEN" \
+             --grpc-web
+           argocd app wait test-sep-argo-project \
+             --server "$ARGOCD_SERVER" \
+             --auth-token "$ARGOCD_AUTH_TOKEN" \
+             --health --timeout 300
+             
   sync-prod:
     runs-on: ubuntu-latest
     needs: update-manifest
