@@ -51,6 +51,10 @@ jobs:
           git commit --allow-empty -m "update ${{ inputs.environment }} values"
           git push
 
+      - name: Install ArgoCD
+        uses: syntaqx/setup-argocd@v1
+          
+             
       - name: Sync ArgoCD app
         env:
           ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_TOKEN }}
