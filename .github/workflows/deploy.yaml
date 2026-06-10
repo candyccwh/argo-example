@@ -46,7 +46,7 @@ jobs:
       - name: Commit and push
         run: |
           git config user.name github-actions
-          git config user.email ccwh@ust.hk
+          git config user.email "ccwh@ust.hk"
           git add guestbook/guestbook-ui-deployment.yaml guestbook/guestbook-ui-svc.yaml
           git commit -m "update ${{ inputs.environment }} values"
           git push
